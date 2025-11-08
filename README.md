@@ -42,12 +42,14 @@ cd the-urlist-nextjs
 npm install
 ```
 
-3. Create environment configuration:
+3. Create environment configuration (Optional for development):
 ```bash
 cp .env.local.example .env.local
 ```
 
-4. Configure OAuth providers in `.env.local`:
+**Note**: The application will run in development mode without OAuth configuration. A default secret is used for development. For production or to enable OAuth authentication, configure the environment variables as described below.
+
+4. Configure OAuth providers in `.env.local` (Optional):
 
 #### Generate NextAuth Secret
 ```bash

@@ -46,5 +46,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/',
     error: '/',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'development' ? 'development-secret-change-in-production' : undefined),
 });
