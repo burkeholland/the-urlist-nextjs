@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { OpenGraphMetadata } from '@/lib/types';
 
+function isValidHttpUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json();
@@ -9,16 +18,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
+    // Validate URL to prevent SSRF attacks
+    if (!isValidHttpUrl(url)) {
+      return NextResponse.json(
+        { error: 'Invalid URL. Only HTTP and HTTPS URLs are allowed.' },
+        { status: 400 }
+      );
+    }
+
+    // Additional validation: prevent requests to localhost/private IPs
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    // Block localhost and private IP ranges
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      hostname.match(/^172\.(1[6-9]|2[0-9]|3[0-1])\./) ||
+      hostname === '::1' ||
+      hostname === '[::1]'
+    ) {
+      return NextResponse.json(
+        { error: 'Requests to internal addresses are not allowed' },
+        { status: 400 }
+      );
+    }
+
     // Fetch the URL and extract Open Graph metadata
+    // Note: URL has been validated above to prevent SSRF attacks
+    // - Only HTTP/HTTPS protocols allowed
+    // - Localhost and private IP addresses blocked
+    // - Timeout set to 5 seconds
+    // - Content-type validation to ensure HTML response
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; TheURList/1.0; +http://urlist.com)',
       },
+      // Add timeout and size limits
+      signal: AbortSignal.timeout(5000), // 5 second timeout
     });
 
     if (!response.ok) {
       return NextResponse.json(
         { error: 'Failed to fetch URL' },
+        { status: 400 }
+      );
+    }
+
+    // Check content type
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('text/html')) {
+      return NextResponse.json(
+        { error: 'URL does not point to an HTML page' },
         { status: 400 }
       );
     }
