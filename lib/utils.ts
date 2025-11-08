@@ -10,8 +10,10 @@ export function generateVanityUrl(): string {
 }
 
 export function isValidVanityUrl(vanityUrl: string): boolean {
-  const regex = /^([\w\d-])+([\w\d-])*$/;
-  return regex.test(vanityUrl);
+  // Fixed regex to avoid ReDoS vulnerability
+  // Only allow alphanumeric and single hyphens, no consecutive hyphens
+  const regex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+  return regex.test(vanityUrl) && vanityUrl.length >= 3 && vanityUrl.length <= 50;
 }
 
 export function generateId(): string {
