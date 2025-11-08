@@ -80,7 +80,7 @@ export default function DashboardPage() {
       } else {
         setError('Failed to create bundle')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred')
     }
   }
@@ -113,7 +113,7 @@ export default function DashboardPage() {
       } else {
         setError('Failed to create link')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred')
     }
   }

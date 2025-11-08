@@ -14,48 +14,67 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  
-  // Check if Supabase is configured
-  const isSupabaseConfigured = 
+// Check if Supabase is configured
+const isSupabaseConfigured = (): boolean => {
+  return !!(
     process.env.NEXT_PUBLIC_SUPABASE_URL && 
     process.env.NEXT_PUBLIC_SUPABASE_URL !== 'your-project-url.supabase.co' &&
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'your-anon-key'
+  )
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false)
-      return
+    let mounted = true
+
+    const init = async () => {
+      if (!isSupabaseConfigured()) {
+        if (mounted) setLoading(false)
+        return
+      }
+
+      try {
+        const supabase = createClient()
+        
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession()
+        if (mounted) {
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+
+        // Listen for auth changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (mounted) {
+            setUser(session?.user ?? null)
+          }
+        })
+
+        return () => {
+          mounted = false
+          subscription.unsubscribe()
+        }
+      } catch (error) {
+        console.error('Supabase initialization error:', error)
+        if (mounted) setLoading(false)
+      }
     }
 
-    try {
-      const supabase = createClient()
-      
-      // Get initial session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-      })
+    init()
 
-      // Listen for auth changes
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null)
-      })
-
-      return () => subscription.unsubscribe()
-    } catch (error) {
-      console.error('Supabase initialization error:', error)
-      setLoading(false)
+    return () => {
+      mounted = false
     }
-  }, [isSupabaseConfigured])
+  }, [])
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       throw new Error('Supabase is not configured. Please set up your environment variables.')
     }
     const supabase = createClient()
@@ -67,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, name?: string) => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       throw new Error('Supabase is not configured. Please set up your environment variables.')
     }
     const supabase = createClient()
@@ -84,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured()) {
       throw new Error('Supabase is not configured. Please set up your environment variables.')
     }
     const supabase = createClient()
