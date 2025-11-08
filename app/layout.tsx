@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthProvider from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeContext";
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "The URList",
@@ -14,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <AuthProvider>
+          <ThemeProvider>
+            <NavBar />
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
