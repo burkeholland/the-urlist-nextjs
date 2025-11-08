@@ -24,7 +24,7 @@ export default function LinkItem({ link, editable = false, onUpdate, onDelete }:
 
   if (isEditing && editable) {
     return (
-      <div className="box">
+      <div className="box link">
         <div className="field">
           <label className="label">URL</label>
           <div className="control">
@@ -70,48 +70,59 @@ export default function LinkItem({ link, editable = false, onUpdate, onDelete }:
   }
 
   return (
-    <div className="box">
-      <article className="media">
-        {link.image && (
-          <figure className="media-left">
-            <div className="image is-64x64" style={{ position: 'relative' }}>
-              <Image
-                src={link.image}
-                alt={link.title || 'Link image'}
-                fill
-                style={{ objectFit: 'cover' }}
-              />
+    <div className="card link">
+      <div className="card-content">
+        <div className="media">
+          {link.image ? (
+            <div className="media-left link-image">
+              <figure className="image is-64x64">
+                <img 
+                  src={link.image} 
+                  alt={link.title || 'Link image'}
+                  style={{ objectFit: 'cover', width: '64px', height: '64px' }}
+                />
+              </figure>
             </div>
-          </figure>
-        )}
-        <div className="media-content">
-          <div className="content">
-            <p>
-              <strong>
-                <a href={link.url} target="_blank" rel="noopener noreferrer">
-                  {link.title || link.url}
-                </a>
-              </strong>
-              <br />
-              {link.description && <span>{link.description}</span>}
-              <br />
-              <small className="has-text-grey">{link.url}</small>
+          ) : (
+            <div className="media-left link-image">
+              <figure className="image is-64x64">
+                <img 
+                  src="/images/no-image.svg" 
+                  alt="No image"
+                  style={{ width: '64px', height: '64px' }}
+                />
+              </figure>
+            </div>
+          )}
+          <div className="media-content link-details">
+            <p className="title is-5 link-title">
+              <a href={link.url} target="_blank" rel="noopener noreferrer">
+                {link.title || link.url}
+              </a>
             </p>
-          </div>
-        </div>
-        {editable && (
-          <div className="media-right">
-            <button className="button is-small" onClick={() => setIsEditing(true)}>
-              Edit
-            </button>
-            {onDelete && (
-              <button className="button is-small is-danger ml-2" onClick={onDelete}>
-                Delete
-              </button>
+            {link.description && (
+              <p className="subtitle is-6 link-description">{link.description}</p>
             )}
+            <p className="link-url">{link.url}</p>
           </div>
-        )}
-      </article>
+          {editable && (
+            <div className="media-right">
+              <button className="button is-small" onClick={() => setIsEditing(true)}>
+                <span className="icon">
+                  <i className="fas fa-edit"></i>
+                </span>
+              </button>
+              {onDelete && (
+                <button className="button is-small is-danger ml-2" onClick={onDelete}>
+                  <span className="icon">
+                    <i className="fas fa-trash"></i>
+                  </span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

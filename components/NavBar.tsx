@@ -2,6 +2,7 @@
 
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useTheme } from './ThemeContext';
 
@@ -11,75 +12,110 @@ export default function NavBar() {
   const [isActive, setIsActive] = useState(false);
 
   return (
-    <nav className="navbar" role="navigation" aria-label="main navigation">
-      <div className="navbar-brand">
-        <Link href="/" className="navbar-item">
-          <strong>The URList</strong>
-        </Link>
+    <header id="navbar" className="header">
+      <nav className="navbar container" role="navigation" aria-label="main navigation">
+        <div className="navbar-brand">
+          <Link href="/" className="navbar-item">
+            <img 
+              id="logo-img" 
+              className="mt-4" 
+              width="100" 
+              height="60" 
+              src="/images/logo.svg" 
+              alt="urlist logo" 
+            />
+          </Link>
+          <a
+            role="button"
+            className={`navbar-burger burger ${isActive ? 'is-active' : ''}`}
+            style={{ marginTop: '20px' }}
+            aria-label="menu"
+            aria-expanded="false"
+            onClick={() => setIsActive(!isActive)}
+          >
+            <img src="/images/burger.svg" alt="toggle menu" width="60" height="60" />
+          </a>
+        </div>
 
-        <a
-          role="button"
-          className={`navbar-burger ${isActive ? 'is-active' : ''}`}
-          aria-label="menu"
-          aria-expanded="false"
-          onClick={() => setIsActive(!isActive)}
-        >
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
-      </div>
-
-      <div className={`navbar-menu ${isActive ? 'is-active' : ''}`}>
-        <div className="navbar-start">
-          {session && (
-            <>
-              <Link href="/s/new" className="navbar-item">
-                New List
-              </Link>
+        <div className={`navbar-menu ${isActive ? 'is-active' : ''}`} style={{ marginTop: '20px' }}>
+          <div className="navbar-start">
+            <Link href="/s/new" className="navbar-item">
+              <span className="icon is-large navbar-icon">
+                <i className="fas fa-lg fa-plus-circle"></i>
+              </span>
+              New
+            </Link>
+            {session && (
               <Link href="/s/mylists" className="navbar-item">
+                <span className="icon is-large navbar-icon">
+                  <i className="fas fa-lg fa-user-circle"></i>
+                </span>
                 My Lists
               </Link>
-            </>
-          )}
-        </div>
+            )}
+            <a href="https://aka.ms/theurlist" className="navbar-item" target="_blank" rel="noopener noreferrer">
+              <span className="icon is-large navbar-icon">
+                <i className="fas fa-lg fa-question-circle"></i>
+              </span>
+              About
+            </a>
+            <Link href="/s/terms" className="navbar-item">
+              <span className="icon is-large navbar-icon">
+                <i className="fas fa-lg fa-info"></i>
+              </span>
+              Terms
+            </Link>
+          </div>
 
-        <div className="navbar-end">
-          <div className="navbar-item">
-            <button
-              className="button is-light"
-              onClick={toggleTheme}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
-          </div>
-          <div className="navbar-item">
-            <div className="buttons">
-              {session ? (
-                <>
-                  <span className="navbar-item">
-                    Hello, {session.user?.name || session.user?.email}
-                  </span>
-                  <button
-                    className="button is-light"
-                    onClick={() => signOut()}
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <button
-                  className="button is-primary"
-                  onClick={() => signIn()}
-                >
-                  Sign In
-                </button>
-              )}
+          <div className="navbar-end">
+            <div className="navbar-item has-dropdown is-hoverable">
+              <a className="navbar-link" onClick={toggleTheme} style={{ cursor: 'pointer' }}>
+                <span className="icon is-medium">
+                  <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'}`}></i>
+                </span>
+                <span>{theme === 'light' ? 'Dark' : 'Light'}</span>
+              </a>
             </div>
+            {session ? (
+              <div className="navbar-item has-dropdown is-hoverable">
+                <a className="navbar-link">
+                  <div className="columns is-gapless is-mobile is-vcentered">
+                    <div className="column is-narrow">
+                      <figure id="profileImage" className="image">
+                        {session.user?.image && (
+                          <img 
+                            className="is-rounded" 
+                            src={session.user.image} 
+                            alt={session.user.name || 'User'} 
+                          />
+                        )}
+                      </figure>
+                    </div>
+                    <div className="column">
+                      <span>{session.user?.name || session.user?.email}</span>
+                    </div>
+                  </div>
+                </a>
+                <div className="navbar-dropdown">
+                  <a className="navbar-item" onClick={() => signOut()} style={{ cursor: 'pointer' }}>
+                    <span className="icon is-medium navbar-icon">
+                      <i className="fas fa-sign-out-alt"></i>
+                    </span>
+                    Log Out
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <a className="navbar-item" onClick={() => signIn()} style={{ cursor: 'pointer' }}>
+                <span className="icon is-large navbar-icon">
+                  <i className="fas fa-lg fa-sign-in-alt"></i>
+                </span>
+                Login
+              </a>
+            )}
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
