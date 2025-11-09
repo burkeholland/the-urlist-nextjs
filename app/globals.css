@@ -249,3 +249,49 @@ a {
 .has-text-primary {
     color: var(--primary) !important;
 }
+
+#getStarted {
+    position: relative;
+}
+
+#homeBottomBackground {
+    background-color: var(--home-bottom-background);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#homeBottom {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.modified {
+    background-color: var(--main-background);
+    color: var(--text-color);
+}
+
+#themeSelector button {
+    text-align: left;
+}
+
+#themeSelector {
+    min-width: 200px;
+}
+
+.is-fullwidth {
+    width: 100%;
+}
+
+.is-justify-content-space-between {
+    justify-content: space-between;
+}
+
+.is-flex {
+    display: flex;
+}
+
+.mr-1 {
+    margin-right: 0.25rem;
+}

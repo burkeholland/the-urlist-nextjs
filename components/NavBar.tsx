@@ -2,13 +2,11 @@
 
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
-import { useTheme } from './ThemeContext';
+import ThemeSwitcher from './ThemeSwitcher';
 
 export default function NavBar() {
   const { data: session } = useSession();
-  const { theme, toggleTheme } = useTheme();
   const [isActive, setIsActive] = useState(false);
 
   return (
@@ -68,14 +66,7 @@ export default function NavBar() {
           </div>
 
           <div className="navbar-end">
-            <div className="navbar-item has-dropdown is-hoverable">
-              <a className="navbar-link" onClick={toggleTheme} style={{ cursor: 'pointer' }}>
-                <span className="icon is-medium">
-                  <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'}`}></i>
-                </span>
-                <span>{theme === 'light' ? 'Dark' : 'Light'}</span>
-              </a>
-            </div>
+            <ThemeSwitcher />
             {session ? (
               <div className="navbar-item has-dropdown is-hoverable">
                 <a className="navbar-link">

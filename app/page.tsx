@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import Image from 'next/image';
+import NewLink from '@/components/NewLink';
 
 export default function Home() {
   const { data: session } = useSession();
@@ -25,23 +25,6 @@ export default function Home() {
                 <p>
                   Create a list anonymously or login to save, manage, and edit your lists.
                 </p>
-                <br />
-                <div className="buttons">
-                  {session ? (
-                    <>
-                      <Link href="/s/new" className="button is-primary">
-                        Create New List
-                      </Link>
-                      <Link href="/s/mylists" className="button is-light">
-                        View My Lists
-                      </Link>
-                    </>
-                  ) : (
-                    <Link href="/api/auth/signin" className="button is-primary">
-                      Get Started
-                    </Link>
-                  )}
-                </div>
               </div>
             </div>
             <div className="column is-half is-hidden-mobile">
@@ -54,6 +37,17 @@ export default function Home() {
                 height="500" 
               />
             </div>
+          </div>
+        </div>
+      </div>
+      <div id="getStarted">
+        <div id="homeBottomBackground"></div>
+        <div id="homeBottom" className="container">
+          <div className="section">
+            <h2 className="is-size-3 has-text-weight-bold has-text-primary has-text-centered">
+              Get Started
+            </h2>
+            <NewLink />
           </div>
         </div>
       </div>

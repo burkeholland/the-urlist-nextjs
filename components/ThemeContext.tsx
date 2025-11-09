@@ -2,51 +2,46 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
-  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
-  toggleTheme: () => {},
+  theme: 'system',
+  setTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('system');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme from localStorage
   useEffect(() => {
     if (!isInitialized) {
-      const savedTheme = localStorage.getItem('theme') as Theme | null;
-      const initialTheme = savedTheme || 
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const savedTheme = localStorage.getItem('preferredTheme') as Theme | null;
+      const initialTheme = savedTheme || 'system';
       
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTheme(initialTheme);
-      document.documentElement.setAttribute('data-theme', initialTheme);
-       
+      setThemeState(initialTheme);
+      applyTheme(initialTheme);
       setIsInitialized(true);
     }
   }, [isInitialized]);
 
-  // Save theme to localStorage when it changes
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('theme', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-    }
-  }, [theme, isInitialized]);
+  const applyTheme = (newTheme: Theme) => {
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
 
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+    applyTheme(newTheme);
+    localStorage.setItem('preferredTheme', newTheme);
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
